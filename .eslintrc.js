@@ -1,7 +1,10 @@
 module.exports = {
-	extends: [ 'airbnb', 'prettier' ],
-	plugins: [ 'prettier' ],
-	rules: {
-		'prettier/prettier': [ 'error' ]
-	}
+  extends: ['airbnb', 'prettier'],
+  env: {
+    jest: true
+  },
+  plugins: ['prettier'],
+  rules: {
+    'prettier/prettier': ['error']
+  }
 }

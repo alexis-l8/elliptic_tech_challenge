@@ -1,11 +1,13 @@
 const errorHandler = async (ctx, next) => {
   try {
     await next()
-  } catch (err) {
-    ctx.status = err.status || 500
+  } catch (error) {
+    console.log(error) // eslint-disable-line no-console
+
+    ctx.status = error.status || 500
     ctx.body = {
       statusCode: ctx.status,
-      error: err.message
+      error: error.message
     }
   }
 }
