@@ -1,5 +1,5 @@
 const axios = require('axios')
-const { chunk } = require('lodash')
+const { chunk, flatten } = require('lodash')
 const { wait } = require('../utils/wait')
 
 const createBlockchainClient = (httpClient = axios) => {
@@ -48,6 +48,7 @@ const createBlockchainClient = (httpClient = axios) => {
     return transactionsHashes
   }
 
+  /* :: number -> Promise<Object[]> */
   const getBlockTxInfo = async blockId => {
     const allHashes = await getBlockTransactionsHashes(blockId)
     const txLimitPerCall = 2
@@ -77,7 +78,9 @@ const createBlockchainClient = (httpClient = axios) => {
     }
 
     const txChunks = await getTxChunks(txHashChunkPromises, 1)
-    return txChunks
+    const transactions = flatten(txChunks)
+
+    return transactions
   }
 
   const api = {
