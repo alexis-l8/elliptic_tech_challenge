@@ -1,14 +1,15 @@
 const Koa = require('koa')
 const Router = require('koa-router')
 const { errorHandler, notFoundHandler } = require('./middlewares')
-const { client } = require('../services/blockchainClient')
+const { blockchainTxs } = require('../model/blockchainTxs')
 
 const router = new Router()
 router.get('/', async ctx => {
-  const latestBlockId = await client.getLatestBlockId()
-  const result = await client.getBlockTxInfo(latestBlockId)
+  const txs = blockchainTxs.get('bitcoin')
 
-  ctx.body = result
+  ctx.body = {
+    data: txs
+  }
 })
 
 const app = new Koa()
