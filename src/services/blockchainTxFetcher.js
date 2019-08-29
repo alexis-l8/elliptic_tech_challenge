@@ -1,8 +1,10 @@
 const EventEmitter = require('events')
 const { client: blockchainClient } = require('./blockchainClient')
 
+const MINUTE = 60 * 1e3
+
 /* :: ?object -> object */
-const createBlockchainTxFetcher = ({ client = blockchainClient } = {}) => {
+const createBlockchainTxFetcher = ({ client = blockchainClient, filter = () => true } = {}) => {
   const eventEmitter = new EventEmitter()
   let fetchInProgress = false
   let intervalId
@@ -14,7 +16,7 @@ const createBlockchainTxFetcher = ({ client = blockchainClient } = {}) => {
     fetchInProgress = true
 
     try {
-      const txs = await client.getBlockTxInfo(blockId)
+      const txs = await client.getBlockTxInfo(blockId, filter)
       eventEmitter.emit('data', blockId, txs)
     } catch (error) {
       console.log(error)
@@ -24,16 +26,27 @@ const createBlockchainTxFetcher = ({ client = blockchainClient } = {}) => {
   }
 
   /* :: (number, ?number) -> Promise<void> */
-  const start = (blockId, interval) => {
+  const start = (blockId, interval = MINUTE) => {
     clearInterval(intervalId)
     currentBlockId = blockId
 
     fetchTxsForBlock(blockId)
 
-    const fetchNextBlock = () => {
-      if (fetchInProgress) return
+    const fetchNextBlock = async () => {
+      const latestBlockId = await blockchainClient.getLatestBlockId()
 
-      currentBlockId += 1
+      if (fetchInProgress) {
+        console.log('Fetch in progress')
+        return
+      }
+
+      if (latestBlockId > currentBlockId) {
+        currentBlockId += 1
+      } else {
+        console.log('No new block yet...')
+        return
+      }
+
       fetchTxsForBlock(currentBlockId)
     }
 

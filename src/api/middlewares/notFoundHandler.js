@@ -1,3 +1,4 @@
+/* :: (object, Function) -> Promise<void> */
 const notFoundHandler = async (ctx, next) => {
   await next()
   if (ctx.status === 404) {

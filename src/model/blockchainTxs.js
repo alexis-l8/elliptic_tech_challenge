@@ -1,6 +1,8 @@
+/* :: () -> object */
 const createModel = () => {
   const store = new Map()
 
+  /* :: (string, ?object) -> object[] */
   const getTransactions = (chain, { limit = 1000 } = {}) => {
     if (!store.has(chain)) return []
 
@@ -25,6 +27,7 @@ const createModel = () => {
     return transactions
   }
 
+  /* :: (string, number, object[]) -> void */
   const setTransactions = (chain, blockId, txs) => {
     if (!store.has(chain)) store.set(chain, {})
 

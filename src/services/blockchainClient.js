@@ -7,13 +7,14 @@ const createBlockchainClient = (httpClient = axios) => {
     baseURL: 'https://api.blockchair.com/bitcoin'
   })
 
+  /* :: (string, ?object) -> Promise<any> */
   const fetch = async (url, config) => {
     try {
       const response = await http.get(url, config)
       return response
     } catch (error) {
-      console.log('error', error) // eslint-disable-line no-console
       if (error.response.status === 402) {
+        console.log('402 - hit rate limit') // eslint-disable-line no-console
         await wait(60 * 1e3)
         return fetch(url, config)
       }
@@ -39,25 +40,24 @@ const createBlockchainClient = (httpClient = axios) => {
 
   /* :: number -> Promise<object[]> */
   const getBlockTransactionsHashes = async blockId => {
-    // const { transaction_count: transactionCount } = await getBlockInfo(blockId)
-    // const params = { limit: transactionCount }
-    const params = { limit: 6 }
+    const { transaction_count: transactionCount } = await getBlockInfo(blockId)
+    const params = { limit: transactionCount }
     const result = await fetch(`dashboards/block/${blockId}`, { params })
-    const { transactions: transactionsHashes } = result.data.data[blockId]
+    const transactionsHashes = result.data.data[blockId].transactions
 
     return transactionsHashes
   }
 
-  /* :: number -> Promise<Object[]> */
-  const getBlockTxInfo = async blockId => {
+  /* :: (number, ?Function) -> Promise<object[]> */
+  const getBlockTxInfo = async (blockId, filter = () => true) => {
     const allHashes = await getBlockTransactionsHashes(blockId)
-    const txLimitPerCall = 2
+    const txLimitPerCall = 10
     const txHashChunks = chunk(allHashes, txLimitPerCall)
 
     const txHashChunkPromises = txHashChunks.map(txHashChunk => {
       const lazyPromise = async () => {
         const response = await fetch(`/dashboards/transactions/${txHashChunk.join(',')}`)
-        return Object.values(response.data.data)
+        return Object.values(response.data.data).filter(filter)
       }
       return lazyPromise
     })

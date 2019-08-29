@@ -4,7 +4,8 @@ const { errorHandler, notFoundHandler } = require('./middlewares')
 const { blockchainTxs } = require('../model/blockchainTxs')
 
 const router = new Router()
-router.get('/', async ctx => {
+// Improve: The route could receive parameters for different blockchains and to filter for other types of interesting transactions
+router.get('/transactions/interesting', async ctx => {
   const txs = blockchainTxs.get('bitcoin')
 
   ctx.body = {

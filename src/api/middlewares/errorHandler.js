@@ -1,3 +1,4 @@
+/* :: (object, Function) -> Promise<void> */
 const errorHandler = async (ctx, next) => {
   try {
     await next()

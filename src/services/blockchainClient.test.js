@@ -247,9 +247,9 @@ describe('bitcoinClient', () => {
     })
 
     describe('#getBlockTransactionsHashes', () => {
-      it('returns all transaction hashes for a single block', async () => {
+      it.only('returns all transaction hashes for a single block', async () => {
         const response = apiBlockInfo
-        axios.get.mockResolvedValueOnce(response)
+        axios.get.mockResolvedValue(response)
 
         const actual = await client.getBlockTransactionsHashes(blockId)
         const expected = apiBlockInfo.data.data[blockId].transactions
